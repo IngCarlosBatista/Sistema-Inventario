@@ -23,9 +23,17 @@ Desarrollar una aplicación de escritorio robusta para la gestión y control de 
 ## 🛠️ Tecnologías Utilizadas
 * **Lenguaje de Programación:** Python 3.x
 * **Base de Datos:** SQLite 3 (Motor relacional integrado localmente)
+* **Interfaz Gráfica:** Tkinter / CustomTkinter (UI Moderna de Escritorio)
 * **Control de Versiones:** Git & GitHub
 
 ---
 
-## 👥 Desarrollador
-* **Ing. Carlos Batista** - *Ingeniero en Software*
+## ⚙️ Instrucciones de Instalación y Ejecución
+
+### Prerrequisitos
+Asegúrate de tener instalado Python 3.10 o superior en tu sistema.
+
+### 1. Clonar el repositorio
+```bash
+git clone [https://github.com/IngCarlosBatista/Sistema-Inventario.git](https://github.com/IngCarlosBatista/Sistema-Inventario.git)
+cd Sistema-Inventario
