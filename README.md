@@ -34,11 +34,17 @@ Desarrollar una aplicación de escritorio robusta para la gestión y control de 
 ```bash
 git clone [https://github.com/IngCarlosBatista/Sistema-Inventario.git](https://github.com/IngCarlosBatista/Sistema-Inventario.git)
 cd Sistema-Inventario
+
+---
+
 ### 2. Instalación de dependencias
 El sistema requiere librerías externas para la interfaz y la generación de reportes. Instálalas ejecutando el siguiente comando en tu terminal:
 
 ```bash
 pip install ttkbootstrap pandas openpyxl
+
+---
+
 ### 3. Ejecución del sistema
 Para iniciar la aplicación, simplemente ejecuta el script principal:
 
