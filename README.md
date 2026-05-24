@@ -34,3 +34,18 @@ Desarrollar una aplicación de escritorio robusta para la gestión y control de 
 ```bash
 git clone [https://github.com/IngCarlosBatista/Sistema-Inventario.git](https://github.com/IngCarlosBatista/Sistema-Inventario.git)
 cd Sistema-Inventario
+### 2. Instalación de dependencias
+El sistema requiere librerías externas para la interfaz y la generación de reportes. Instálalas ejecutando el siguiente comando en tu terminal:
+
+```bash
+pip install ttkbootstrap pandas openpyxl
+### 3. Ejecución del sistema
+Para iniciar la aplicación, simplemente ejecuta el script principal:
+
+```bash
+python main.py
+---
+
+## 💡 Notas Adicionales
+* **Reportes:** Al utilizar el botón "Exportar a Excel", se abrirá una ventana emergente para que selecciones la ruta de destino donde deseas guardar el archivo.
+* **Base de Datos:** El archivo `inventario.db` se encuentra dentro de la carpeta `/database/`. Asegúrate de no moverlo para que el sistema mantenga la conexión correctamente.
