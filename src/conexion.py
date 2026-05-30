@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import hashlib
 
 def conectar():
     """Establece una conexión con la base de datos SQLite dentro de la carpeta database."""
@@ -25,7 +26,9 @@ def crear_tablas():
     conexion = conectar()
     if conexion:
         cursor = conexion.cursor()
-        sql = """
+        
+        # 1. Tabla de Productos (la que ya tenías)
+        sql_productos = """
         CREATE TABLE IF NOT EXISTS productos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT NOT NULL,
@@ -35,10 +38,48 @@ def crear_tablas():
             stock_minimo INTEGER NOT NULL DEFAULT 5
         )
         """
+        
+        # 2. NUEVA Tabla de Usuarios
+        sql_usuarios = """
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            rol TEXT DEFAULT 'empleado'
+        )
+        """
+        
         try:
-            cursor.execute(sql)
+            # Ejecutamos ambos comandos
+            cursor.execute(sql_productos)
+            cursor.execute(sql_usuarios)
             conexion.commit()
+            print("Base de datos y tablas verificadas correctamente.")
         except sqlite3.Error as e:
             print(f"Error al crear las tablas: {e}")
         finally:
             conexion.close()
+
+def registrar_usuario(username, password, rol="empleado"):
+    """Encripta la contraseña y guarda el usuario en la base de datos."""
+    # Convertimos la contraseña a bytes y la encriptamos (SHA-256)
+    password_bytes = password.encode('utf-8')
+    password_hash = hashlib.sha256(password_bytes).hexdigest()
+    
+    conexion = conectar()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute('''
+                INSERT INTO usuarios (username, password_hash, rol)
+                VALUES (?, ?, ?)
+            ''', (username, password_hash, rol))
+            conexion.commit()
+            print(f"Usuario '{username}' registrado con éxito.")
+            return True
+        except sqlite3.IntegrityError:
+            print(f"Error: El usuario '{username}' ya existe.")
+            return False
+        finally:
+            conexion.close()
+    return False

@@ -1,6 +1,7 @@
 # 📦 Sistema de Control de Inventario
 
-## 📝 Descripción del Proyecto
+## 📝 Descripción del Proyect
+
 <<<<<<< HEAD
 
 =======
@@ -11,9 +12,8 @@ Esta aplicación optimiza y digitaliza por completo el flujo operativo de cualqu
 
 ---
 
-# 📦 Sistema de Control de Inventario
-
 ## 📝 Descripción del Proyecto
+
 Este sistema surge como una solución tecnológica profesional diseñada para resolver las ineficiencias operativas comunes en la gestión de mercancías. La falta de automatización y el registro manual suelen generar pérdidas económicas, descuadres críticos en almacén y retrasos en la toma de decisiones estratégicas.
 
 Esta aplicación optimiza y digitaliza por completo el flujo operativo de cualquier comercio, ofreciendo un control preciso, centralizado y en tiempo real sobre las entradas, salidas y existencias reales de productos.
@@ -23,9 +23,11 @@ Esta aplicación optimiza y digitaliza por completo el flujo operativo de cualqu
 ## 🎯 Objetivos del Proyecto
 
 ### Objetivo General
+
 Desarrollar una aplicación de escritorio robusta para la gestión y control de inventarios, optimizando el registro de mercancías y garantizando la integridad de los datos de stock mediante un entorno seguro, intuitivo y eficiente.
 
 ### Objetivos Específicos
+
 * **Módulo CRUD Completo:** Implementar un panel administrativo dinámico para la creación, lectura, actualización y eliminación de productos.
 * **Alertas de Stock Crítico:** Desarrollar un sistema automatizado de notificaciones visuales para advertir cuando un producto esté próximo a agotarse.
 * **Persistencia Local Eficiente:** Integrar SQLite para garantizar la consistencia de la información sin dependencias complejas.
@@ -34,6 +36,7 @@ Desarrollar una aplicación de escritorio robusta para la gestión y control de 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
+
 * **Lenguaje:** Python 3.x
 * **Base de Datos:** SQLite 3
 * **Interfaz Gráfica:** Ttkbootstrap
@@ -44,6 +47,7 @@ Desarrollar una aplicación de escritorio robusta para la gestión y control de 
 ## ⚙️ Instrucciones de Instalación y Ejecución
 
 ### 1. Clonar el repositorio
+
 ```bash
 git clone [https://github.com/IngCarlosBatista/Sistema-Inventario.git](https://github.com/IngCarlosBatista/Sistema-Inventario.git)
 cd Sistema-Inventario

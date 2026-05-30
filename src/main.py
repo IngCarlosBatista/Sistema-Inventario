@@ -2,11 +2,12 @@ import sys
 import os
 import sqlite3
 import pandas as pd
+import tkinter as tk
 from tkinter import filedialog, messagebox
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 from conexion import crear_tablas
-from PIL import Image, ImageTk # Importación necesaria para imágenes
+from PIL import Image, ImageTk 
 
 # Forzar el directorio de trabajo a la ubicación de este script
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
@@ -87,7 +88,7 @@ def eliminar_producto(id_p):
         return False, f"Error al eliminar: {str(e)}"
 
 # =====================================================================
-# 📦 INTERFAZ GRÁ GRÁFICA DE USUARIO
+# 📦 INTERFAZ GRÁFICA DE USUARIO
 # =====================================================================
 
 class SistemaInventarioApp:
@@ -128,6 +129,19 @@ class SistemaInventarioApp:
         header_label = tb.Label(header_frame, text="PANEL DE CONTROL", 
                                 font=("Segoe UI", 18, "bold"), foreground="#2980b9")
         header_label.pack(side=LEFT, expand=True)
+
+        # --- MENÚ DESPLEGABLE USUARIO (Derecha) ---
+        self.menu_usuario = tk.Menu(self.root, tearoff=0)
+        self.menu_usuario.add_command(label="👤 Mi Perfil")
+        self.menu_usuario.add_command(label="⚙️ Configuración")
+        self.menu_usuario.add_command(label="🔑 Cambiar Contraseña")
+        self.menu_usuario.add_separator()
+        self.menu_usuario.add_command(label="🎨 Tema Visual")
+        self.menu_usuario.add_command(label="🚪 Cerrar Sesión", foreground="red")
+        
+        btn_usuario = tb.Menubutton(header_frame, text="👤 Nombre Usuario", bootstyle="info-outline")
+        btn_usuario.pack(side=RIGHT, padx=10)
+        btn_usuario["menu"] = self.menu_usuario
         
         # --- PANEL IZQUIERDO ---
         left_panel = tb.Frame(main_frame, padding=10)
