@@ -27,7 +27,7 @@ def crear_tablas():
     if conexion:
         cursor = conexion.cursor()
         
-        # 1. Tabla de Productos (la que ya tenías)
+        # 1. Tabla de Productos
         sql_productos = """
         CREATE TABLE IF NOT EXISTS productos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +39,7 @@ def crear_tablas():
         )
         """
         
-        # 2. NUEVA Tabla de Usuarios
+        # 2. Tabla de Usuarios
         sql_usuarios = """
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +62,6 @@ def crear_tablas():
 
 def registrar_usuario(username, password, rol="empleado"):
     """Encripta la contraseña y guarda el usuario en la base de datos."""
-    # Convertimos la contraseña a bytes y la encriptamos (SHA-256)
     password_bytes = password.encode('utf-8')
     password_hash = hashlib.sha256(password_bytes).hexdigest()
     
@@ -82,4 +81,20 @@ def registrar_usuario(username, password, rol="empleado"):
             return False
         finally:
             conexion.close()
+    return False
+
+def verificar_usuario(username, password):
+    """Verifica si las credenciales coinciden con las de la base de datos."""
+    password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    
+    conexion = conectar()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("SELECT password_hash FROM usuarios WHERE username = ?", (username,))
+        resultado = cursor.fetchone()
+        conexion.close()
+        
+        # Si encuentra el usuario y el hash coincide, retorna True
+        if resultado and resultado[0] == password_hash:
+            return True
     return False

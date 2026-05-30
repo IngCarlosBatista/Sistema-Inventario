@@ -9,6 +9,10 @@ from ttkbootstrap.constants import *
 from conexion import crear_tablas
 from PIL import Image, ImageTk 
 
+# --- VERIFICACIÓN DE SEGURIDAD ---
+# Si ves una ruta que no es la de tu carpeta de trabajo, ese es el archivo que se está ejecutando por error
+print(f">>> CARGANDO SISTEMA DESDE: {os.path.abspath(__file__)}")
+
 # Forzar el directorio de trabajo a la ubicación de este script
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ruta_actual)
@@ -18,6 +22,7 @@ os.chdir(ruta_actual)
 # =====================================================================
 
 def obtener_conexion():
+    # Asegúrate de que esta ruta sea correcta para tu estructura de carpetas
     ruta_db = os.path.abspath(os.path.join(ruta_actual, "..", "database", "inventario.db"))
     return sqlite3.connect(ruta_db)
 
@@ -93,9 +98,9 @@ def eliminar_producto(id_p):
 
 class SistemaInventarioApp:
     def __init__(self, root):
+        print(">>> DEBUG: ESTOY EJECUTANDO EL SISTEMA CON EL MENÚ DE USUARIO")
         self.root = root
-        self.root.title("📦 Sistema de Control de Inventario Premium")
-        self.root.geometry("1200x720")
+        self.root.title("Sistema de Inventario")
         self.root.resizable(True, True)
         
         self.root.columnconfigure(0, weight=1)
@@ -122,24 +127,25 @@ class SistemaInventarioApp:
         if os.path.exists(ruta_logo):
             img = Image.open(ruta_logo)
             img = img.resize((self.logo_w, self.logo_h), Image.Resampling.LANCZOS)
-            self.logo_tk = ImageTk.PhotoImage(img)
+            self.logo_tk = ImageTk.PhotoImage(img, master=self.root) 
             tb.Label(header_frame, image=self.logo_tk).pack(side=LEFT, padx=(0, 15))
 
         # --- TÍTULO (Centro) ---
         header_label = tb.Label(header_frame, text="PANEL DE CONTROL", 
-                                font=("Segoe UI", 18, "bold"), foreground="#2980b9")
+                                       font=("Segoe UI", 18, "bold"), foreground="#2980b9")
         header_label.pack(side=LEFT, expand=True)
 
         # --- MENÚ DESPLEGABLE USUARIO (Derecha) ---
         self.menu_usuario = tk.Menu(self.root, tearoff=0)
-        self.menu_usuario.add_command(label="👤 Mi Perfil")
-        self.menu_usuario.add_command(label="⚙️ Configuración")
-        self.menu_usuario.add_command(label="🔑 Cambiar Contraseña")
+        self.menu_usuario.add_command(label="👤 Mi Perfil", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
+        self.menu_usuario.add_command(label="⚙️ Configuración", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
+        self.menu_usuario.add_command(label="🔑 Cambiar Contraseña", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
         self.menu_usuario.add_separator()
-        self.menu_usuario.add_command(label="🎨 Tema Visual")
-        self.menu_usuario.add_command(label="🚪 Cerrar Sesión", foreground="red")
+        self.menu_usuario.add_command(label="🎨 Tema Visual", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
+        self.menu_usuario.add_command(label="🚪 Cerrar Sesión", foreground="red", command=self.cerrar_sesion)
         
-        btn_usuario = tb.Menubutton(header_frame, text="👤 Nombre Usuario", bootstyle="info-outline")
+        # Cambiamos el texto a "ADMINISTRADOR" y el color a "danger" (rojo) para que sea imposible no verlo
+        btn_usuario = tb.Menubutton(header_frame, text="ADMINISTRADOR", bootstyle="danger")
         btn_usuario.pack(side=RIGHT, padx=10)
         btn_usuario["menu"] = self.menu_usuario
         
@@ -195,6 +201,7 @@ class SistemaInventarioApp:
         
         tb.Button(left_panel, text="🗑️ Eliminar Producto por ID", bootstyle="danger-outline", width=30, command=self.ejecutar_eliminacion).pack(anchor=W)
         
+    
         # --- PANEL DERECHO ---
         right_panel = tb.Frame(main_frame, padding=10)
         right_panel.grid(row=1, column=1, sticky="nsew")
@@ -260,6 +267,20 @@ class SistemaInventarioApp:
         btn_excel.grid(row=3, column=0, sticky="ew", pady=(10, 0))
         
         self.cargar_tabla_datos()
+        
+        # --- CORRECCIÓN FORZADA PARA RENDERIZADO AL FINAL ---
+        self.root.geometry("1200x720")
+        self.root.update_idletasks()
+        self.root.deiconify()
+
+    def cerrar_sesion(self):
+        # Importación local para evitar error de importación circular
+        from login import LoginApp
+        if messagebox.askyesno("Cerrar Sesión", "¿Está seguro de que desea salir?"):
+            self.root.destroy()
+            root_login = tb.Window(themename="flatly")
+            LoginApp(root_login)
+            root_login.mainloop()
     
     def filtrar_tabla(self, event=None):
         """Filtra la tabla según el texto en el buscador"""
