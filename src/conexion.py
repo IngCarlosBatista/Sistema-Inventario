@@ -3,12 +3,10 @@ import os
 import hashlib
 
 def conectar():
-    """Establece una conexión con la base de datos SQLite dentro de la carpeta database."""
-    # Obtener la ruta del directorio raíz del proyecto de forma dinámica (sube un nivel desde src)
+    """Establece una conexión con la base de datos SQLite."""
     ruta_raiz = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     ruta_db_folder = os.path.join(ruta_raiz, "database")
     
-    # Asegurar que la carpeta 'database' exista físicamente en el disco
     if not os.path.exists(ruta_db_folder):
         os.makedirs(ruta_db_folder)
         
@@ -22,13 +20,13 @@ def conectar():
         return None
 
 def crear_tablas():
-    """Crea las tablas obligatorias del sistema si no existen."""
+    """Crea las tablas obligatorias del sistema."""
     conexion = conectar()
     if conexion:
         cursor = conexion.cursor()
         
         # 1. Tabla de Productos
-        sql_productos = """
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS productos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT NOT NULL,
@@ -37,42 +35,37 @@ def crear_tablas():
             precio REAL NOT NULL DEFAULT 0.0,
             stock_minimo INTEGER NOT NULL DEFAULT 5
         )
-        """
+        """)
         
-        # 2. Tabla de Usuarios
-        sql_usuarios = """
+        # 2. Tabla de Usuarios (Actualizada con nombre, apellido y foto_path)
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            rol TEXT DEFAULT 'empleado'
+            rol TEXT DEFAULT 'empleado',
+            nombre TEXT,
+            apellido TEXT,
+            foto_path TEXT
         )
-        """
+        """)
         
-        try:
-            # Ejecutamos ambos comandos
-            cursor.execute(sql_productos)
-            cursor.execute(sql_usuarios)
-            conexion.commit()
-            print("Base de datos y tablas verificadas correctamente.")
-        except sqlite3.Error as e:
-            print(f"Error al crear las tablas: {e}")
-        finally:
-            conexion.close()
+        conexion.commit()
+        conexion.close()
+        print("Base de datos y tablas verificadas correctamente.")
 
-def registrar_usuario(username, password, rol="empleado"):
-    """Encripta la contraseña y guarda el usuario en la base de datos."""
-    password_bytes = password.encode('utf-8')
-    password_hash = hashlib.sha256(password_bytes).hexdigest()
+def registrar_usuario(username, password, path_foto, nombre="", apellido="", rol="empleado"):
+    """Encripta la contraseña y guarda el usuario incluyendo los nuevos datos."""
+    password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
     
     conexion = conectar()
     if conexion:
         try:
             cursor = conexion.cursor()
             cursor.execute('''
-                INSERT INTO usuarios (username, password_hash, rol)
-                VALUES (?, ?, ?)
-            ''', (username, password_hash, rol))
+                INSERT INTO usuarios (username, password_hash, rol, nombre, apellido, foto_path)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (username, password_hash, rol, nombre, apellido, path_foto))
             conexion.commit()
             print(f"Usuario '{username}' registrado con éxito.")
             return True
@@ -84,17 +77,26 @@ def registrar_usuario(username, password, rol="empleado"):
     return False
 
 def verificar_usuario(username, password):
-    """Verifica si las credenciales coinciden con las de la base de datos."""
+    """
+    Verifica credenciales.
+    Si es correcto, retorna un diccionario con los datos del usuario (útil para la sesión).
+    Si es incorrecto, retorna None.
+    """
     password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
     
     conexion = conectar()
     if conexion:
         cursor = conexion.cursor()
-        cursor.execute("SELECT password_hash FROM usuarios WHERE username = ?", (username,))
+        # Buscamos el usuario y traemos los datos adicionales
+        cursor.execute("SELECT password_hash, nombre, apellido, foto_path FROM usuarios WHERE username = ?", (username,))
         resultado = cursor.fetchone()
         conexion.close()
         
-        # Si encuentra el usuario y el hash coincide, retorna True
         if resultado and resultado[0] == password_hash:
-            return True
-    return False
+            # Retornamos los datos para poder usarlos en el sistema
+            return {
+                "nombre": resultado[1],
+                "apellido": resultado[2],
+                "foto": resultado[3]
+            }
+    return None

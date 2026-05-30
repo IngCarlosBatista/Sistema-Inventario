@@ -8,12 +8,11 @@ import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 from conexion import crear_tablas
 from PIL import Image, ImageTk 
+import menus 
 
 # --- VERIFICACIÓN DE SEGURIDAD ---
-# Si ves una ruta que no es la de tu carpeta de trabajo, ese es el archivo que se está ejecutando por error
 print(f">>> CARGANDO SISTEMA DESDE: {os.path.abspath(__file__)}")
 
-# Forzar el directorio de trabajo a la ubicación de este script
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ruta_actual)
 
@@ -22,7 +21,6 @@ os.chdir(ruta_actual)
 # =====================================================================
 
 def obtener_conexion():
-    # Asegúrate de que esta ruta sea correcta para tu estructura de carpetas
     ruta_db = os.path.abspath(os.path.join(ruta_actual, "..", "database", "inventario.db"))
     return sqlite3.connect(ruta_db)
 
@@ -98,7 +96,6 @@ def eliminar_producto(id_p):
 
 class SistemaInventarioApp:
     def __init__(self, root):
-        print(">>> DEBUG: ESTOY EJECUTANDO EL SISTEMA CON EL MENÚ DE USUARIO")
         self.root = root
         self.root.title("Sistema de Inventario")
         self.root.resizable(True, True)
@@ -121,7 +118,7 @@ class SistemaInventarioApp:
         header_frame = tb.Frame(main_frame, padding=15)
         header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 20))
         
-        # --- LOGO (Izquierda) ---
+        # --- LOGO ---
         self.logo_w, self.logo_h = 200, 80
         ruta_logo = os.path.join(ruta_actual, "..", "assets", "logo.png")
         if os.path.exists(ruta_logo):
@@ -130,25 +127,42 @@ class SistemaInventarioApp:
             self.logo_tk = ImageTk.PhotoImage(img, master=self.root) 
             tb.Label(header_frame, image=self.logo_tk).pack(side=LEFT, padx=(0, 15))
 
-        # --- TÍTULO (Centro) ---
         header_label = tb.Label(header_frame, text="PANEL DE CONTROL", 
-                                       font=("Segoe UI", 18, "bold"), foreground="#2980b9")
+                                font=("Segoe UI", 18, "bold"), foreground="#2980b9")
         header_label.pack(side=LEFT, expand=True)
 
-        # --- MENÚ DESPLEGABLE USUARIO (Derecha) ---
+        right_header_frame = tb.Frame(header_frame)
+        right_header_frame.pack(side=RIGHT, padx=10, anchor=N)
+
+        datos_admin = {
+            "nombre": "Administrador",
+            "rol": "Administrador",
+            "email": "admin@sistema.com",
+            "telefono": "+1 809-555-0123",
+            "depto": "Almacén",
+            "fecha": "30/05/2026"
+        }
+
+        # --- MENÚ DESPLEGABLE ---
         self.menu_usuario = tk.Menu(self.root, tearoff=0)
-        self.menu_usuario.add_command(label="👤 Mi Perfil", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
-        self.menu_usuario.add_command(label="⚙️ Configuración", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
-        self.menu_usuario.add_command(label="🔑 Cambiar Contraseña", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
+        # Usamos el wrapper self.abrir_ventana_centrada para asegurar que abran en el centro
+        self.menu_usuario.add_command(label="👤 Mi Perfil", command=lambda: self.abrir_ventana_centrada(menus.abrir_perfil, self.root, datos_admin))
+        self.menu_usuario.add_command(label="⚙️ Configuración", command=lambda: self.abrir_ventana_centrada(menus.abrir_configuracion, self.root))
+        self.menu_usuario.add_command(label="🔑 Cambiar Contraseña", command=lambda: self.abrir_ventana_centrada(menus.abrir_cambiar_contrasena, self.root))
         self.menu_usuario.add_separator()
-        self.menu_usuario.add_command(label="🎨 Tema Visual", command=lambda: messagebox.showinfo("Info", "Funcionalidad en desarrollo"))
+        self.menu_usuario.add_command(label="🎨 Tema Visual", command=lambda: self.abrir_ventana_centrada(menus.abrir_tema_visual, self.root))
         self.menu_usuario.add_command(label="🚪 Cerrar Sesión", foreground="red", command=self.cerrar_sesion)
         
-        # Cambiamos el texto a "ADMINISTRADOR" y el color a "danger" (rojo) para que sea imposible no verlo
-        btn_usuario = tb.Menubutton(header_frame, text="ADMINISTRADOR", bootstyle="danger")
-        btn_usuario.pack(side=RIGHT, padx=10)
-        btn_usuario["menu"] = self.menu_usuario
+        btn_menu = tb.Menubutton(right_header_frame, text="Menu", bootstyle="info")
+        btn_menu.pack(anchor=E)
+        btn_menu["menu"] = self.menu_usuario
         
+        self.lbl_profile_icon = tb.Label(right_header_frame, text="👤", font=("Segoe UI", 25))
+        self.lbl_profile_icon.pack(anchor=E, pady=(5, 0))
+        
+        tb.Label(right_header_frame, text="Administrador", font=("Segoe UI", 9, "bold")).pack(anchor=E)
+        tb.Label(right_header_frame, text="Admin", font=("Segoe UI", 8), foreground="gray").pack(anchor=E)
+
         # --- PANEL IZQUIERDO ---
         left_panel = tb.Frame(main_frame, padding=10)
         left_panel.grid(row=1, column=0, sticky="nw")
@@ -201,14 +215,12 @@ class SistemaInventarioApp:
         
         tb.Button(left_panel, text="🗑️ Eliminar Producto por ID", bootstyle="danger-outline", width=30, command=self.ejecutar_eliminacion).pack(anchor=W)
         
-    
         # --- PANEL DERECHO ---
         right_panel = tb.Frame(main_frame, padding=10)
         right_panel.grid(row=1, column=1, sticky="nsew")
         right_panel.columnconfigure(0, weight=1)
         right_panel.rowconfigure(1, weight=1)
         
-        # --- CABECERA PANEL DERECHO (Título + Buscador) ---
         header_right_frame = tb.Frame(right_panel)
         header_right_frame.grid(row=0, column=0, sticky="ew", pady=(0, 15))
         
@@ -233,17 +245,18 @@ class SistemaInventarioApp:
         scrollbar.grid(row=0, column=1, sticky="ns")
         self.tabla.configure(yscrollcommand=scrollbar.set)
         
-        self.tabla.heading("id", text="ID")
-        self.tabla.heading("nombre", text="Producto")
-        self.tabla.heading("cantidad", text="Existencias")
-        self.tabla.heading("precio", text="Precio Unitario")
-        self.tabla.heading("estado", text="Estado de Alerta")
+        # --- AJUSTE DE ALINEACIÓN Y ANCHO DE COLUMNAS ---
+        self.tabla.heading("id", text="ID", anchor=CENTER)
+        self.tabla.heading("nombre", text="Producto", anchor=W)
+        self.tabla.heading("cantidad", text="Existencias", anchor=CENTER)
+        self.tabla.heading("precio", text="Precio Unitario", anchor=E)
+        self.tabla.heading("estado", text="Estado", anchor=CENTER)
         
-        self.tabla.column("id", width=60, anchor=CENTER)
-        self.tabla.column("nombre", width=280, anchor=W)
-        self.tabla.column("cantidad", width=110, anchor=CENTER)
-        self.tabla.column("precio", width=140, anchor=E)
-        self.tabla.column("estado", width=160, anchor=CENTER)
+        self.tabla.column("id", width=50, anchor=CENTER)
+        self.tabla.column("nombre", width=300, anchor=W)
+        self.tabla.column("cantidad", width=100, anchor=CENTER)
+        self.tabla.column("precio", width=120, anchor=E)
+        self.tabla.column("estado", width=120, anchor=CENTER)
         
         self.dash_frame = tb.Labelframe(right_panel, text="RESUMEN EJECUTIVO DEL ALMACÉN")
         self.dash_frame.grid(row=2, column=0, sticky="ew")
@@ -268,13 +281,30 @@ class SistemaInventarioApp:
         
         self.cargar_tabla_datos()
         
-        # --- CORRECCIÓN FORZADA PARA RENDERIZADO AL FINAL ---
         self.root.geometry("1200x720")
         self.root.update_idletasks()
         self.root.deiconify()
 
+    # --- MÉTODO PARA CENTRAR VENTANAS AUTOMÁTICAMENTE ---
+    def abrir_ventana_centrada(self, funcion_menu, *args):
+        """Wrapper que abre una ventana y la centra automáticamente."""
+        hijos_antes = set(self.root.winfo_children())
+        funcion_menu(*args)
+        self.root.after(50, lambda: self._centrar_hija(hijos_antes))
+
+    def _centrar_hija(self, hijos_antes):
+        hijos_despues = set(self.root.winfo_children())
+        nueva = hijos_despues - hijos_antes
+        if nueva:
+            ventana = list(nueva)[0]
+            ventana.update_idletasks()
+            w = ventana.winfo_width()
+            h = ventana.winfo_height()
+            x = self.root.winfo_x() + (self.root.winfo_width() // 2) - (w // 2)
+            y = self.root.winfo_y() + (self.root.winfo_height() // 2) - (h // 2)
+            ventana.geometry(f"+{x}+{y}")
+
     def cerrar_sesion(self):
-        # Importación local para evitar error de importación circular
         from login import LoginApp
         if messagebox.askyesno("Cerrar Sesión", "¿Está seguro de que desea salir?"):
             self.root.destroy()
@@ -283,13 +313,9 @@ class SistemaInventarioApp:
             root_login.mainloop()
     
     def filtrar_tabla(self, event=None):
-        """Filtra la tabla según el texto en el buscador"""
         query = self.ent_busqueda.get().lower()
         if query == "buscar producto...": query = ""
-        
-        for item in self.tabla.get_children():
-            self.tabla.delete(item)
-        
+        for item in self.tabla.get_children(): self.tabla.delete(item)
         productos = obtener_productos()
         for prod in productos:
             id_p, nombre, cant, precio, min_s = prod
