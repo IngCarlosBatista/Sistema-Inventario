@@ -119,7 +119,7 @@ class SistemaInventarioApp:
         header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 20))
         
         # --- LOGO ---
-        self.logo_w, self.logo_h = 200, 80
+        self.logo_w, self.logo_h = 200, 100
         ruta_logo = os.path.join(ruta_actual, "..", "assets", "logo.png")
         if os.path.exists(ruta_logo):
             img = Image.open(ruta_logo)
@@ -127,8 +127,8 @@ class SistemaInventarioApp:
             self.logo_tk = ImageTk.PhotoImage(img, master=self.root) 
             tb.Label(header_frame, image=self.logo_tk).pack(side=LEFT, padx=(0, 15))
 
-        header_label = tb.Label(header_frame, text="PANEL DE CONTROL", 
-                                font=("Segoe UI", 18, "bold"), foreground="#2980b9")
+        header_label = tb.Label(header_frame, text="Gestión de Almacén", 
+                                font=("Segoe UI", 20, "bold"), foreground="#2980b9")
         header_label.pack(side=LEFT, expand=True)
 
         right_header_frame = tb.Frame(header_frame)
@@ -167,7 +167,7 @@ class SistemaInventarioApp:
         left_panel = tb.Frame(main_frame, padding=10)
         left_panel.grid(row=1, column=0, sticky="nw")
         
-        lbl_titulo_left = tb.Label(left_panel, text="GESTIÓN DE ALMACÉN", font=("Segoe UI", 13, "bold"), foreground="#27ae60")
+        lbl_titulo_left = tb.Label(left_panel, text="Ingresar Producto", font=("Segoe UI", 15, "bold"), foreground="#27ae60")
         lbl_titulo_left.pack(anchor=W, pady=(0, 15))
         
         tb.Label(left_panel, text="Nombre del Producto:", font=self.fuente_labels).pack(anchor=W, pady=(0, 2))
